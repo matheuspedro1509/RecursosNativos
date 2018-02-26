@@ -3,7 +3,7 @@
 //  Agenda
 //
 //  Created by Nutela on 26/02/18.
-//  Copyright © 2018 Alura. All rights reserved.
+//  Copyright © 2018 Matheus S. All rights reserved.
 //
 
 import UIKit
