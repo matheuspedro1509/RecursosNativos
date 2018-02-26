@@ -8,7 +8,9 @@
 
 import UIKit
 
-class AlunoViewController: UIViewController {
+class AlunoViewController: UIViewController, ImagePickerFotoSelecionada {
+   
+    
     
     // MARK: - IBOutlets
     
@@ -23,18 +25,23 @@ class AlunoViewController: UIViewController {
     @IBOutlet weak var textFieldSite: UITextField!
     @IBOutlet weak var textFieldNota: UITextField!
     
-    // MARK: - View Lifecycle
+    let imagePicker = ImagePicker()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.arredondaView()
         NotificationCenter.default.addObserver(self, selector: #selector(aumentarScrollView(_:)), name: .UIKeyboardWillShow, object: nil)
+        self.setupView()
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
     }
     
+    
+    func setupView(){
+        imagePicker.delegate = self
+    }
     // MARK: - Métodos
     
     func arredondaView() {
@@ -48,13 +55,36 @@ class AlunoViewController: UIViewController {
     }
     
     // MARK: - IBActions
+    func mostrarMultimida(_ opcao: MenuOpcoes){
+        let multimidia = UIImagePickerController()
+        multimidia.delegate = imagePicker
+        
+        if UIImagePickerController.isSourceTypeAvailable(.camera) && opcao == .camera {
+            multimidia.sourceType = .camera
+        }else{
+            multimidia.sourceType = .photoLibrary
+        }
+        self.present(multimidia, animated: true, completion: nil)
+    }
+    
     
     @IBAction func buttonFoto(_ sender: UIButton) {
-        // TO DO
+        
+        
+        let menu = ImagePicker().menuOpcoes { (opcao) in
+            self.mostrarMultimida(opcao)
+        }
+        present(menu, animated: true, completion: nil)
+       
+        
     }
     
     @IBAction func stepperNota(_ sender: UIStepper) {
         self.textFieldNota.text = "\(sender.value)"
+    }
+    func imagemSelecionada(_ imagem: UIImage) {
+        self.imageAluno.image = imagem
+        buttonFoto.alpha = 0.05
     }
     
     
