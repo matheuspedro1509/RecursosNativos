@@ -25,5 +25,13 @@ class HomeTableViewCell: UITableViewCell {
 
         // Configure the view for the selected state
     }
+    func configuraCelula(_ aluno:Aluno) {
+        labelNomeDoAluno.text = aluno.nome
+        imageAluno.layer.cornerRadius = imageAluno.frame.width / 2
+        imageAluno.layer.masksToBounds = true
+        if let imagemDoAluno = aluno.imagem as? UIImage {
+            imageAluno.image = imagemDoAluno
+        }
+    }
 
 }

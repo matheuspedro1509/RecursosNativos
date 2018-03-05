@@ -7,18 +7,40 @@
 //
 
 import UIKit
+import CoreData
 
-class HomeTableViewController: UITableViewController, UISearchBarDelegate {
+class HomeTableViewController: UITableViewController, UISearchBarDelegate , NSFetchedResultsControllerDelegate{
     
     //MARK: - Variáveis
     
     let searchController = UISearchController(searchResultsController: nil)
+    var gerenciadorDeResultados: NSFetchedResultsController<Aluno>?
+    
+    var contexto:NSManagedObjectContext {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.persistentContainer.viewContext
+    }
     
     // MARK: - View Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.configuraSearch()
+        self.recuperaAluno()
+    }
+    
+    func recuperaAluno(){
+        let pesquisaAlunos: NSFetchRequest<Aluno> = Aluno.fetchRequest()
+        let ordenaPornome = NSSortDescriptor(key: "nome", ascending: true)
+        pesquisaAlunos.sortDescriptors = [ordenaPornome]
+        
+        gerenciadorDeResultados = NSFetchedResultsController(fetchRequest: pesquisaAlunos, managedObjectContext: contexto, sectionNameKeyPath: nil, cacheName: nil)
+        
+        do{
+            try gerenciadorDeResultados?.performFetch()
+        } catch{
+            print(error.localizedDescription)
+        }
     }
     
     // MARK: - Métodos
@@ -32,13 +54,15 @@ class HomeTableViewController: UITableViewController, UISearchBarDelegate {
     // MARK: - Table view data source
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 0
+        guard let contadorListaDeAlunos = gerenciadorDeResultados?.fetchedObjects?.count else { return 0 }
+        return contadorListaDeAlunos
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "celula-aluno", for: indexPath) as! HomeTableViewCell
-
-        return cell
+        let celula = tableView.dequeueReusableCell(withIdentifier: "celula-aluno", for: indexPath) as! HomeTableViewCell
+        guard let aluno = gerenciadorDeResultados?.fetchedObjects![indexPath.row] else { return celula }
+        celula.configuraCelula(aluno)
+        return celula
     }
 
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
@@ -48,6 +72,20 @@ class HomeTableViewController: UITableViewController, UISearchBarDelegate {
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 85
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .delete:
+            // implementar
+            break
+        default:
+            tableView.reloadData()
+        }
     }
 
 }
