@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class AlunoViewController: UIViewController, ImagePickerFotoSelecionada {
    
@@ -26,6 +27,11 @@ class AlunoViewController: UIViewController, ImagePickerFotoSelecionada {
     @IBOutlet weak var textFieldNota: UITextField!
     
     let imagePicker = ImagePicker()
+    
+    var contexto: NSManagedObjectContext{
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        return appDelegate.persistentContainer.viewContext
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -85,6 +91,23 @@ class AlunoViewController: UIViewController, ImagePickerFotoSelecionada {
     func imagemSelecionada(_ imagem: UIImage) {
         self.imageAluno.image = imagem
         buttonFoto.alpha = 0.05
+    }
+    
+    @IBAction func salvarAluno(_ sender: UIButton) {
+        let aluno = Aluno(context : contexto)
+        aluno.endereco = textFieldEndereco.text
+        aluno.nome = textFieldNome.text
+        aluno.site = textFieldSite.text
+        aluno.nota = (textFieldNota.text! as NSString).doubleValue
+        aluno.telefone = textFieldTelefone.text
+        aluno.imagem = imageAluno.image
+        
+        do {
+            try contexto.save()
+            navigationController?.popViewController(animated: true)
+        }catch {
+            print(error.localizedDescription)
+        }
     }
     
     
