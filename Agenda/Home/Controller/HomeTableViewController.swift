@@ -35,7 +35,7 @@ class HomeTableViewController: UITableViewController, UISearchBarDelegate , NSFe
         pesquisaAlunos.sortDescriptors = [ordenaPornome]
         
         gerenciadorDeResultados = NSFetchedResultsController(fetchRequest: pesquisaAlunos, managedObjectContext: contexto, sectionNameKeyPath: nil, cacheName: nil)
-        
+        gerenciadorDeResultados?.delegate = self
         do{
             try gerenciadorDeResultados?.performFetch()
         } catch{
